@@ -122,25 +122,22 @@ for i in range(row_dim):
 
 weight = np.reshape(weight, (row_dim, vec_dim, 1, 1))
 
-outfile = open("../Ref_Implementations/fully_connected_testing_weights.h", "w")
-outfile.write("#define IP2_WEIGHT {")
-weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+with open("../Ref_Implementations/fully_connected_testing_weights.h", "w") as outfile:
+    outfile.write("#define IP2_WEIGHT {")
+    weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-new_weight = convert_to_x4_q7_weights(weight)
-outfile.write("#define IP4_WEIGHT {")
-new_weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    new_weight = convert_to_x4_q7_weights(weight)
+    outfile.write("#define IP4_WEIGHT {")
+    new_weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-new_weight = convert_q7_q15_weights(weight)
-outfile.write("#define IP4_q7_q15_WEIGHT {")
-new_weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    new_weight = convert_q7_q15_weights(weight)
+    outfile.write("#define IP4_q7_q15_WEIGHT {")
+    new_weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-new_weight = convert_to_x4_q15_weights(weight)
-outfile.write("#define IP4_WEIGHT_Q15 {")
-new_weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
-
-
-outfile.close()
+    new_weight = convert_to_x4_q15_weights(weight)
+    outfile.write("#define IP4_WEIGHT_Q15 {")
+    new_weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
