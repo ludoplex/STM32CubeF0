@@ -99,85 +99,80 @@ input_data1 = np.zeros((vec_dim-row_dim), dtype=int)
 input_data2 = np.zeros((vec_dim-row_dim), dtype=int)
 history_data = np.zeros((row_dim), dtype=int)
 
-outfile = open("arm_nnexamples_gru_test_data.h", "w")
+with open("arm_nnexamples_gru_test_data.h", "w") as outfile:
+    for i in range(row_dim):
+      for j in range(vec_dim):
+        update_weight[i][j] = np.random.randint(256)-128
+        reset_weight[i][j] = np.random.randint(256)-128
+        hidden_weight[i][j] = np.random.randint(256)-128
 
-for i in range(row_dim):
-  for j in range(vec_dim):
-    update_weight[i][j] = np.random.randint(256)-128
-    reset_weight[i][j] = np.random.randint(256)-128
-    hidden_weight[i][j] = np.random.randint(256)-128
+    for i in range(row_dim):
+      update_bias[i] =  np.random.randint(256)-128
+      reset_bias[i] =  np.random.randint(256)-128
+      hidden_bias[i] =  np.random.randint(256)-128
+      history_data[i] = np.random.randint(2**10)-2**9
 
-for i in range(row_dim):
-  update_bias[i] =  np.random.randint(256)-128
-  reset_bias[i] =  np.random.randint(256)-128
-  hidden_bias[i] =  np.random.randint(256)-128
-  history_data[i] = np.random.randint(2**10)-2**9
+    for i in range(vec_dim-row_dim):
+      input_data1[i] = np.random.randint(2**10)-2**9
+      input_data2[i] = np.random.randint(2**10)-2**9
 
-for i in range(vec_dim-row_dim):
-  input_data1[i] = np.random.randint(2**10)-2**9
-  input_data2[i] = np.random.randint(2**10)-2**9
+    weight = np.reshape(update_weight, (row_dim, vec_dim, 1, 1))
+    new_weight = convert_to_x4_weights(weight)
 
-weight = np.reshape(update_weight, (row_dim, vec_dim, 1, 1))
-new_weight = convert_to_x4_weights(weight)
+    outfile.write("#define UPDATE_GATE_WEIGHT_X2 {")
+    weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-outfile.write("#define UPDATE_GATE_WEIGHT_X2 {")
-weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    new_weight = convert_q7_q15_weights(weight)
+    outfile.write("#define UPDATE_GATE_WEIGHT_X4 {")
+    new_weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-new_weight = convert_q7_q15_weights(weight)
-outfile.write("#define UPDATE_GATE_WEIGHT_X4 {")
-new_weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    weight = np.reshape(reset_weight, (row_dim, vec_dim, 1, 1))
+    new_weight = convert_to_x4_weights(weight)
 
-weight = np.reshape(reset_weight, (row_dim, vec_dim, 1, 1))
-new_weight = convert_to_x4_weights(weight)
+    outfile.write("#define RESET_GATE_WEIGHT_X2 {")
+    weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-outfile.write("#define RESET_GATE_WEIGHT_X2 {")
-weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    new_weight = convert_q7_q15_weights(weight)
+    outfile.write("#define RESET_GATE_WEIGHT_X4 {")
+    new_weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-new_weight = convert_q7_q15_weights(weight)
-outfile.write("#define RESET_GATE_WEIGHT_X4 {")
-new_weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    weight = np.reshape(hidden_weight, (row_dim, vec_dim, 1, 1))
+    new_weight = convert_to_x4_weights(weight)
 
-weight = np.reshape(hidden_weight, (row_dim, vec_dim, 1, 1))
-new_weight = convert_to_x4_weights(weight)
+    outfile.write("#define HIDDEN_STATE_WEIGHT_X2 {")
+    weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-outfile.write("#define HIDDEN_STATE_WEIGHT_X2 {")
-weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    new_weight = convert_q7_q15_weights(weight)
+    outfile.write("#define HIDDEN_STATE_WEIGHT_X4 {")
+    new_weight.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-new_weight = convert_q7_q15_weights(weight)
-outfile.write("#define HIDDEN_STATE_WEIGHT_X4 {")
-new_weight.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    outfile.write("#define UPDATE_GATE_BIAS {")
+    update_bias.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-outfile.write("#define UPDATE_GATE_BIAS {")
-update_bias.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    outfile.write("#define RESET_GATE_BIAS {")
+    reset_bias.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-outfile.write("#define RESET_GATE_BIAS {")
-reset_bias.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    outfile.write("#define HIDDEN_STATE_BIAS {")
+    update_bias.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-outfile.write("#define HIDDEN_STATE_BIAS {")
-update_bias.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    outfile.write("#define INPUT_DATA1 {")
+    input_data1.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
-outfile.write("#define INPUT_DATA1 {")
-input_data1.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
-
-outfile.write("#define INPUT_DATA2 {")
-input_data2.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
-
-
-outfile.write("#define HISTORY_DATA {")
-history_data.tofile(outfile,sep=",",format="%d")
-outfile.write("}\n\n")
+    outfile.write("#define INPUT_DATA2 {")
+    input_data2.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
 
 
-
-outfile.close()
+    outfile.write("#define HISTORY_DATA {")
+    history_data.tofile(outfile,sep=",",format="%d")
+    outfile.write("}\n\n")
